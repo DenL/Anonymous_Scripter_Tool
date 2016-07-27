@@ -1,0 +1,4 @@
+fake-factory
+Temp-Mail
+simplejson
+bs4
