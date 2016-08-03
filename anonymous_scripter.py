@@ -17,22 +17,37 @@ from bs4 import BeautifulSoup
 fake = Factory.create('en_GB')
 countries = [x.replace('\n', '').split('|') for x in open('./countries.txt').readlines()]
 
-if len(sys.argv) > 1:
-    times = int(sys.argv[1])
-else:
-    times = 100
-for attempt in range(times):
-    # get names, DOB
-    fname, lname = fake.first_name(), fake.last_name()
-    dob = fake.date_time_between('-40y', '-20y')
-    dob = [x.zfill(2) for x in map(str, [dob.year, dob.month, dob.day])]
-    rand_country = random.choice(countries)
-    ua = fake.user_agent()
+start = 0
+stop = 100
+randompostfix = True
 
-    # first part of email, also used for username currently
-    emailprefix = 'REPLACEME' + str(random.randint(0, 999)).zfill(3) 	
+if len(sys.argv) == 2:
+    stop = int(sys.argv[1])
+elif len(sys.argv) == 3:
+	start = int(sys.argv[1])
+	stop = int(sys.argv[2]) + 1
+	randompostfix = False
+
+for i in range(start, stop):
+    # get names, DOB
+	fname, lname = fake.first_name(), fake.last_name()
+	dob = fake.date_time_between('-40y', '-20y')
+	dob = [x.zfill(2) for x in map(str, [dob.year, dob.month, dob.day])]
+	rand_country = random.choice(countries)
+	ua = fake.user_agent()
+
+	# first part of email, also used for username currently
+	if randompostfix:
+		postfix = str(random.randint(0, 999)).zfill(3)
+	else:
+		postfix = str(i).zfill(3)
+    
+	emailprefix = 'REPLACEME' + postfix
+	
+	print "email prefix is " + emailprefix
 
     tm = TempMail(login=emailprefix)
+	
     # full email
     try:
         email = tm.get_email_address()
